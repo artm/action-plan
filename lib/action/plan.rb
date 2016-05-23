@@ -1,7 +1,9 @@
 require "action/plan/version"
 
 module Action
-  module Plan
-    # Your code goes here...
+  class Plan
+    def initialize root_action
+
+    end
   end
 end
