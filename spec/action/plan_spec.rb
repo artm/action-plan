@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'actions/procrastinate'
+require "spec_helper"
+require "actions/procrastinate"
 
 describe Action::Plan do
   it 'has a version number' do

@@ -1,4 +1,4 @@
-require 'action/base'
+require "action/base"
 class Procrastinate < Action::Base
 
 end
