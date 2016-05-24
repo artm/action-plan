@@ -1,9 +1,5 @@
 require 'spec_helper'
-
-require 'action/base'
-class Procrastinate < Action::Base
-
-end
+require 'actions/procrastinate'
 
 describe Action::Plan do
   it 'has a version number' do
