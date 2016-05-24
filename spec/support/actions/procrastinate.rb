@@ -1,4 +1,5 @@
 require "action/base"
-class Procrastinate < Action::Base
 
+# a dummy action that doesn't plan, doesn't run, doesn't finallize anything
+class Procrastinate < Action::Base
 end
