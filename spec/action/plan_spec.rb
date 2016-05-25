@@ -133,35 +133,35 @@ describe Action::Plan do
   end
 
   describe "plan status" do
-    subject(:plan_status) { plan.status }
-    context "empty plan" do
-      let(:plan) { Action::Plan.new }
-      it { is_expected.to eq :empty }
+    it "is :empty if schedule is empty" do
+      plan = Action::Plan.new
+      expect(plan.status).to eq :empty
     end
 
-    context "freshly planned" do
-      let(:plan) {
-        Action::Plan.new {|plan|
-          plan.action JustDoIt
-          plan.action JustDoIt
-          plan.action JustDoIt
-        }
+    let(:plan) {
+      Action::Plan.new {|plan|
+        plan.action JustDoIt
+        plan.action JustDoIt
+        plan.action JustDoIt
       }
-      it { is_expected.to eq :planned }
+    }
+    it "is :planned for a freshly planned plan" do
+      expect(plan.status).to eq :planned
     end
 
-    context "successfully ran" do
-      let(:plan) {
-        Action::Plan.new {|plan|
-          plan.action JustDoIt
-          plan.action JustDoIt
-          plan.action JustDoIt
-        }
-      }
-      before do
-        plan.run
-      end
-      it { is_expected.to eq :done }
+    it "is :done for a successfully ran plan" do
+      plan.run
+      expect(plan.status).to eq :done
+    end
+
+    it "is :failed if an action fails" do
+      plan.action_states[0].status = :failed
+      expect(plan.status).to eq :failed
+    end
+
+    it "is :running if an action runs" do
+      plan.action_states[0].status = :running
+      expect(plan.status).to eq :running
     end
   end
 end

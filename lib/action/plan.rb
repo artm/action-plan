@@ -36,6 +36,10 @@ module Action
         :planned
       when schedule.all? { |state| state.status == :done }
         :done
+      when schedule.any? { |state| state.status == :failed }
+        :failed
+      when schedule.any? { |state| state.status == :running }
+        :running
       else
         :invalid
       end
