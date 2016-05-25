@@ -85,34 +85,39 @@ describe Action::Plan do
         plan.action JustDoIt
       end
     }
-    let(:action_statuses) { plan.action_states.map(&:status) }
+    let(:state_a) { plan.action_states[0] }
+    let(:state_b) { plan.action_states[1] }
 
     it "initializes all actions as :planned" do
-      expect(action_statuses).to eq [:planned, :planned]
+      expect(state_a.status).to eq :planned
+      expect(state_b.status).to eq :planned
     end
 
     it "sets action states to :done after successful run" do
       plan.run
-      expect(action_statuses).to eq [:done, :done]
+      expect(state_a.status).to eq :done
+      expect(state_b.status).to eq :done
     end
 
-    it "sets action state to :running just before calling its #run" do
-      action_states = plan.action_states
-      first_action = double("first-action")
-      last_action = double("last-action")
-      expect(action_states.first).to receive(:create_action) { first_action }
-      expect(action_states.last).to receive(:create_action) { last_action }
-      expect(first_action).to receive(:run) do
-        expect(action_states.first.status).to eq :running
-        expect(action_states.last.status).to eq :planned
+    context "mock actions" do
+      let(:action_a) { double("action") }
+      let(:action_b) { double("action") }
+      before do
+        allow(state_a).to receive(:create_action) { action_a }
+        allow(state_b).to receive(:create_action) { action_b }
       end
-      expect(last_action).to receive(:run) do
-        expect(action_states.first.status).to eq :done
-        expect(action_states.last.status).to eq :running
+
+      it "sets action state to :running just before calling its #run" do
+        expect(action_a).to receive(:run) do
+          expect(state_a.status).to eq :running
+          expect(state_b.status).to eq :planned
+        end
+        expect(action_b).to receive(:run) do
+          expect(state_a.status).to eq :done
+          expect(state_b.status).to eq :running
+        end
+        plan.run
       end
-      plan.run
-      expect(action_states.first.status).to eq :done
-      expect(action_states.last.status).to eq :done
     end
   end
 end
