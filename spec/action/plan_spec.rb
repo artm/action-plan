@@ -70,5 +70,13 @@ describe Action::Plan do
       end
       plan.run
     end
+
+    it "freezes run-time configs" do
+      plan
+      expect_any_instance_of(action_class).to receive(:run) do |action|
+        expect{ action.config.setting = 2 }.to raise_error RuntimeError, /can't modify frozen/
+      end
+      plan.run
+    end
   end
 end

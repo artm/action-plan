@@ -14,6 +14,7 @@ module Action
       @schedule.each do |action_class, saved_config|
         action = action_class.new(plan: self) do |config|
           config.replace(saved_config)
+          config.freeze
         end
         action.run
       end
@@ -27,7 +28,7 @@ module Action
 
     # schedule action execution at the current point in the plan
     def schedule_action action_class, config
-      @schedule << [action_class, config]
+      @schedule << [action_class, config.dup]
       self
     end
   end
