@@ -5,14 +5,16 @@ module Action
     attr_reader :root_action
 
     def initialize root_action_class, &block
-      @actions = []
+      @schedule = []
       @root_action = root_action_class.new(plan: self, &block)
       @root_action.plan
     end
 
     def run
-      @actions.each do |action_class|
-        action = action_class.new(plan: self)
+      @schedule.each do |action_class, saved_config|
+        action = action_class.new(plan: self) do |config|
+          config.replace(saved_config)
+        end
         action.run
       end
     end
@@ -24,8 +26,8 @@ module Action
     end
 
     # schedule action execution at the current point in the plan
-    def schedule_action action_class
-      @actions << action_class
+    def schedule_action action_class, config
+      @schedule << [action_class, config]
       self
     end
   end

@@ -47,6 +47,7 @@ describe Action::Plan do
   end
 
   describe "action configs" do
+    let(:action_class) { JustDoIt }
     let(:plan) {
       Action::Plan.new(action_class) do |config|
         config.setting = 1
@@ -60,6 +61,14 @@ describe Action::Plan do
     it "doesn't break the default action config" do
       plan
       expect(action_class.config.setting).to be_nil
+    end
+
+    it "recalls the config when executing action's #run" do
+      plan
+      expect_any_instance_of(action_class).to receive(:run) do |action|
+        expect(action.config.setting).to eq 1
+      end
+      plan.run
     end
   end
 end
