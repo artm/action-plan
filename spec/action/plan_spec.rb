@@ -87,6 +87,14 @@ describe Action::Plan do
     }
     let(:state_a) { plan.action_states[0] }
     let(:state_b) { plan.action_states[1] }
+    let(:action_a) { instance_double("JustDoIt") }
+    let(:action_b) { instance_double("JustDoIt") }
+    before do
+      allow(state_a).to receive(:create_action) { action_a }
+      allow(state_b).to receive(:create_action) { action_b }
+      allow(action_a).to receive(:run)
+      allow(action_b).to receive(:run)
+    end
 
     it "initializes all actions as :planned" do
       expect(state_a.status).to eq :planned
@@ -99,37 +107,28 @@ describe Action::Plan do
       expect(state_b.status).to eq :done
     end
 
-    context "mock actions" do
-      let(:action_a) { double("action a") }
-      let(:action_b) { double("action b") }
-      before do
-        allow(state_a).to receive(:create_action) { action_a }
-        allow(state_b).to receive(:create_action) { action_b }
-      end
-
-      it "sets action state to :running just before calling its #run" do
-        expect(action_a).to receive(:run) do
-          expect(state_a.status).to eq :running
-          expect(state_b.status).to eq :planned
-        end
-        expect(action_b).to receive(:run) do
-          expect(state_a.status).to eq :done
-          expect(state_b.status).to eq :running
-        end
-        plan.run
-      end
-
-      it "sets action state to :failed if its #run raises exception" do
-        expect(action_a).to receive(:run) do
-          expect(state_a.status).to eq :running
-          expect(state_b.status).to eq :planned
-          raise RuntimeError, "couldn't do it"
-        end
-        expect(action_b).not_to receive(:run)
-        plan.run
-        expect(state_a.status).to eq :failed
+    it "sets action state to :running just before calling its #run" do
+      expect(action_a).to receive(:run) do
+        expect(state_a.status).to eq :running
         expect(state_b.status).to eq :planned
       end
+      expect(action_b).to receive(:run) do
+        expect(state_a.status).to eq :done
+        expect(state_b.status).to eq :running
+      end
+      plan.run
+    end
+
+    it "sets action state to :failed if its #run raises exception" do
+      expect(action_a).to receive(:run) do
+        expect(state_a.status).to eq :running
+        expect(state_b.status).to eq :planned
+        raise RuntimeError, "couldn't do it"
+      end
+      expect(action_b).not_to receive(:run)
+      plan.run
+      expect(state_a.status).to eq :failed
+      expect(state_b.status).to eq :planned
     end
   end
 end
