@@ -1,4 +1,5 @@
 require "action/plan/version"
+require "action/state"
 
 module Action
   class Plan
@@ -8,11 +9,8 @@ module Action
     end
 
     def run
-      @schedule.each do |action_class, saved_config|
-        action = action_class.new(plan: self) do |config|
-          config.replace(saved_config)
-          config.freeze
-        end
+      @schedule.each do |state|
+        action = state.instance(plan: self)
         action.run
       end
     end
@@ -25,7 +23,7 @@ module Action
 
     # schedule action execution at the current point in the plan
     def schedule_action action_class, config
-      @schedule << [action_class, config.dup]
+      @schedule << Action::State.new(action_class: action_class, config: config)
       self
     end
 
