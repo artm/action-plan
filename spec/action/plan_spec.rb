@@ -8,14 +8,14 @@ describe Action::Plan do
   end
 
   let(:action_class) { Procrastinate }
-  let(:plan) { Action::Plan.new(action_class) }
+  let(:plan) {
+    Action::Plan.new do |plan|
+      plan.action action_class
+    end
+  }
 
   it "can be instantiated" do
     expect(plan).to be_kind_of Action::Plan
-  end
-
-  it "knows its root action" do
-    expect(plan.root_action).to be_kind_of Procrastinate
   end
 
   it "calls root action's #plan()" do
@@ -49,14 +49,12 @@ describe Action::Plan do
   describe "action configs" do
     let(:action_class) { JustDoIt }
     let(:plan) {
-      Action::Plan.new(action_class) do |config|
-        config.setting = 1
+      Action::Plan.new do |plan|
+        plan.action action_class do |config|
+          config.setting = 1
+        end
       end
     }
-
-    it "configures the actions" do
-      expect(plan.root_action.config.setting).to eq 1
-    end
 
     it "doesn't break the default action config" do
       plan

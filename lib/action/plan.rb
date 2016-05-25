@@ -2,12 +2,9 @@ require "action/plan/version"
 
 module Action
   class Plan
-    attr_reader :root_action
-
-    def initialize root_action_class, &block
+    def initialize &block
       @schedule = []
-      @root_action = root_action_class.new(plan: self, &block)
-      @root_action.plan
+      yield DSL.new(self)
     end
 
     def run
@@ -30,6 +27,16 @@ module Action
     def schedule_action action_class, config
       @schedule << [action_class, config.dup]
       self
+    end
+
+    class DSL
+      def initialize plan
+        @plan = plan
+      end
+
+      def action *args, &block
+        @plan.plan_action *args, &block
+      end
     end
   end
 end
