@@ -28,6 +28,19 @@ module Action
       schedule.dup
     end
 
+    def status
+      case
+      when schedule.empty?
+        :empty
+      when schedule.all? { |state| state.status == :planned }
+        :planned
+      when schedule.all? { |state| state.status == :done }
+        :done
+      else
+        :invalid
+      end
+    end
+
     # let action plan itself
     def plan_action action_class, &block
       action_class.new(plan: self, &block).plan
