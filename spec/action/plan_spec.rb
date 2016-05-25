@@ -131,4 +131,28 @@ describe Action::Plan do
       expect(state_b.status).to eq :planned
     end
   end
+
+  describe "#runnable?" do
+    subject(:plan) { Action::Plan.new }
+    shared_examples "runnable" do |status|
+      before do
+        expect(plan).to receive(:status) { status }
+      end
+      it { is_expected.to be_runnable }
+    end
+
+    shared_examples "not runnable" do |status|
+      before do
+        expect(plan).to receive(:status) { status }
+      end
+      it { is_expected.to_not be_runnable }
+    end
+
+    it_behaves_like "runnable", :empty
+    it_behaves_like "runnable", :planned
+    it_behaves_like "runnable", :failed
+    it_behaves_like "not runnable", :running
+    it_behaves_like "not runnable", :done
+    it_behaves_like "not runnable", :invalid
+  end
 end

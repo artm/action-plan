@@ -32,6 +32,11 @@ module Action
       Action::State.sequence_status(schedule.map(&:status))
     end
 
+    RunnableStatuses = [:planned, :failed, :empty]
+    def runnable?
+      RunnableStatuses.include?(status)
+    end
+
     # let action plan itself
     def plan_action action_class, &block
       action_class.new(plan: self, &block).plan
