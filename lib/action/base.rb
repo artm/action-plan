@@ -1,5 +1,9 @@
+require "active_support/configurable"
+
 module Action
   class Base
+    include ActiveSupport::Configurable
+
     def initialize plan:
       @plan = plan
     end
