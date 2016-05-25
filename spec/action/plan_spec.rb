@@ -95,5 +95,24 @@ describe Action::Plan do
       plan.run
       expect(action_statuses).to eq [:done, :done]
     end
+
+    it "sets action state to :running just before calling its #run" do
+      action_states = plan.action_states
+      first_action = double("first-action")
+      last_action = double("last-action")
+      expect(action_states.first).to receive(:create_action) { first_action }
+      expect(action_states.last).to receive(:create_action) { last_action }
+      expect(first_action).to receive(:run) do
+        expect(action_states.first.status).to eq :running
+        expect(action_states.last.status).to eq :planned
+      end
+      expect(last_action).to receive(:run) do
+        expect(action_states.first.status).to eq :done
+        expect(action_states.last.status).to eq :running
+      end
+      plan.run
+      expect(action_states.first.status).to eq :done
+      expect(action_states.last.status).to eq :done
+    end
   end
 end
