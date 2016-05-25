@@ -1,11 +1,14 @@
 require "spec_helper"
 require "action/base"
+require "actions/procrastinate"
+require "actions/just_do_it"
+require "actions/delegate_work"
 
 describe Action::Base do
   let(:plan) { double("plan") }
   let(:action) { action_class.new(plan: plan) }
 
-  context "doesn't implement #run" do
+  context "implements neither #run or #plan" do
     let(:action_class) { Procrastinate }
 
     it "doesn't respond to #run" do
@@ -23,6 +26,15 @@ describe Action::Base do
 
     it "plans itself upon #plan" do
       expect(action).to receive(:plan_itself)
+      action.plan
+    end
+  end
+
+  context "doesn't implement #run, but plans other actions" do
+    let(:action_class) { DelegateWork }
+
+    it "plans the other action" do
+      expect(plan).to receive(:plan_action).with(JustDoIt)
       action.plan
     end
   end

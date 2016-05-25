@@ -11,5 +11,9 @@ module Action
     def plan_itself
       @plan.plan_action(self.class)
     end
+
+    def plan_action action_class
+      action_class.new(plan: @plan).plan
+    end
   end
 end
