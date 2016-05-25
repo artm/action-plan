@@ -131,37 +131,4 @@ describe Action::Plan do
       expect(state_b.status).to eq :planned
     end
   end
-
-  describe "plan status" do
-    it "is :empty if schedule is empty" do
-      plan = Action::Plan.new
-      expect(plan.status).to eq :empty
-    end
-
-    let(:plan) {
-      Action::Plan.new {|plan|
-        plan.action JustDoIt
-        plan.action JustDoIt
-        plan.action JustDoIt
-      }
-    }
-    it "is :planned for a freshly planned plan" do
-      expect(plan.status).to eq :planned
-    end
-
-    it "is :done for a successfully ran plan" do
-      plan.run
-      expect(plan.status).to eq :done
-    end
-
-    it "is :failed if an action fails" do
-      plan.action_states[0].status = :failed
-      expect(plan.status).to eq :failed
-    end
-
-    it "is :running if an action runs" do
-      plan.action_states[0].status = :running
-      expect(plan.status).to eq :running
-    end
-  end
 end
