@@ -21,8 +21,8 @@ module Action
     end
 
     # let action plan itself
-    def plan_action action_class
-      action_class.new(plan: self).plan
+    def plan_action action_class, &block
+      action_class.new(plan: self, &block).plan
       self
     end
 

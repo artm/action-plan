@@ -17,8 +17,8 @@ module Action
       @plan.schedule_action(self.class, config)
     end
 
-    def plan_action action_class
-      @plan.plan_action(action_class)
+    def plan_action action_class, &block
+      @plan.plan_action(action_class, &block)
     end
   end
 end
