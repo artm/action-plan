@@ -9,6 +9,7 @@ module Action
     end
 
     def run
+      raise NotRunnable, "#{status} plan can't be run" unless runnable?
       schedule.each do |state|
         action = state.create_action(plan: self)
         run_action action, state
@@ -60,6 +61,9 @@ module Action
         @plan.plan_action *args, &block
       end
     end
+
+    class Error < RuntimeError ; end
+    class NotRunnable < Error ; end
 
     private
 

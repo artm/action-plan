@@ -154,5 +154,11 @@ describe Action::Plan do
     it_behaves_like "not runnable", :running
     it_behaves_like "not runnable", :done
     it_behaves_like "not runnable", :invalid
+
+    it "prevents plan from running when false" do
+      expect(plan).to receive(:runnable?) { false }
+      expect(plan).to receive(:status) { :in_a_bad_way }
+      expect{ plan.run }.to raise_error Action::Plan::NotRunnable, /in_a_bad_way plan can't be run/
+    end
   end
 end
