@@ -90,5 +90,10 @@ describe Action::Plan do
     it "initializes all actions as :planned" do
       expect(action_statuses).to eq [:planned, :planned]
     end
+
+    it "sets action states to :done after successful run" do
+      plan.run
+      expect(action_statuses).to eq [:done, :done]
+    end
   end
 end

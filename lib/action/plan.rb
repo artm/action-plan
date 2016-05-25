@@ -12,6 +12,7 @@ module Action
       @schedule.each do |state|
         action = state.create_action(plan: self)
         action.run
+        state.status = :done
       end
     end
 
