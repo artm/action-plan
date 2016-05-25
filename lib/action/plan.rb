@@ -12,6 +12,7 @@ module Action
       schedule.each do |state|
         action = state.create_action(plan: self)
         run_action action, state
+        break unless state.status == :done
       end
     end
 
@@ -19,6 +20,8 @@ module Action
       state.status = :running
       action.run
       state.status = :done
+    rescue
+      state.status = :failed
     end
 
     def action_states
