@@ -81,8 +81,8 @@ describe Action::Plan do
   describe "action states" do
     let(:plan) {
       Action::Plan.new do |plan|
-        plan.action(JustDoIt) { |c| c.setting = 1 }
-        plan.action(JustDoIt) { |c| c.setting = 2 }
+        plan.action JustDoIt
+        plan.action JustDoIt
       end
     }
     let(:action_statuses) { plan.action_states.map(&:status) }
