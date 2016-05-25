@@ -17,9 +17,16 @@ module Action
       end
     end
 
+    # let action plan itself
     def plan_action action_class
+      action_class.new(plan: self).plan
+      self
+    end
+
+    # schedule action execution at the current point in the plan
+    def schedule_action action_class
       @actions << action_class
-      action_class
+      self
     end
   end
 end

@@ -9,11 +9,11 @@ module Action
     end
 
     def plan_itself
-      @plan.plan_action(self.class)
+      @plan.schedule_action(self.class)
     end
 
     def plan_action action_class
-      action_class.new(plan: @plan).plan
+      @plan.plan_action(action_class)
     end
   end
 end

@@ -25,7 +25,7 @@ describe Action::Base do
     let(:action_class) { JustDoIt }
 
     it "plans itself upon #plan" do
-      expect(action).to receive(:plan_itself)
+      expect(plan).to receive(:schedule_action).with(JustDoIt)
       action.plan
     end
   end
