@@ -45,4 +45,21 @@ describe Action::Plan do
       plan.run
     end
   end
+
+  describe "action configs" do
+    let(:plan) {
+      Action::Plan.new(action_class) do |config|
+        config.setting = 1
+      end
+    }
+
+    it "configures the actions" do
+      expect(plan.root_action.config.setting).to eq 1
+    end
+
+    it "doesn't break the default action config" do
+      plan
+      expect(action_class.config.setting).to be_nil
+    end
+  end
 end

@@ -4,8 +4,9 @@ module Action
   class Base
     include ActiveSupport::Configurable
 
-    def initialize plan:
+    def initialize plan:, &block
       @plan = plan
+      yield config if block_given?
     end
 
     def plan

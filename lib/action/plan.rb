@@ -4,9 +4,9 @@ module Action
   class Plan
     attr_reader :root_action
 
-    def initialize root_action_class
+    def initialize root_action_class, &block
       @actions = []
-      @root_action = root_action_class.new(plan: self)
+      @root_action = root_action_class.new(plan: self, &block)
       @root_action.plan
     end
 
