@@ -77,4 +77,18 @@ describe Action::Plan do
       plan.run
     end
   end
+
+  describe "action states" do
+    let(:plan) {
+      Action::Plan.new do |plan|
+        plan.action(JustDoIt) { |c| c.setting = 1 }
+        plan.action(JustDoIt) { |c| c.setting = 2 }
+      end
+    }
+    let(:action_statuses) { plan.action_states.map(&:status) }
+
+    it "initializes all actions as :planned" do
+      expect(action_statuses).to eq [:planned, :planned]
+    end
+  end
 end

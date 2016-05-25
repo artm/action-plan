@@ -10,9 +10,13 @@ module Action
 
     def run
       @schedule.each do |state|
-        action = state.instance(plan: self)
+        action = state.create_action(plan: self)
         action.run
       end
+    end
+
+    def action_states
+      @schedule.dup
     end
 
     # let action plan itself
@@ -23,7 +27,9 @@ module Action
 
     # schedule action execution at the current point in the plan
     def schedule_action action_class, config
-      @schedule << Action::State.new(action_class: action_class, config: config)
+      new_state = Action::State.new(action_class: action_class, config: config)
+      @schedule << new_state
+      new_state.status = :planned
       self
     end
 
