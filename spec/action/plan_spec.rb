@@ -1,6 +1,7 @@
 require "spec_helper"
 require "actions/procrastinate"
 require "actions/just_do_it"
+require "plan_helpers"
 
 describe Action::Plan do
   it 'has a version number' do
@@ -75,34 +76,6 @@ describe Action::Plan do
         expect{ action.config.setting = 2 }.to raise_error RuntimeError, /can't modify frozen/
       end
       plan.run
-    end
-  end
-
-  shared_context "exposed plan" do |count|
-    let(:plan) {
-      Action::Plan.new do |plan|
-        count.times do
-          plan.action JustDoIt
-        end
-      end
-    }
-    let(:states) { plan.action_states }
-    let(:actions) { states.map{ double("action", run: nil) } }
-    before do
-      states.each_with_index do |state, i|
-        allow(state).to receive(:create_action) { actions[i] }
-      end
-    end
-  end
-
-  shared_context "plan state" do |statuses|
-    include_context "exposed plan", statuses.count
-    before do
-      statuses.each_with_index do |status, index|
-        state = states[index]
-        state.status = status
-        allow(state).to receive(:create_action) { actions[index] }
-      end
     end
   end
 
