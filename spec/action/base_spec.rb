@@ -16,7 +16,7 @@ describe Action::Base do
     end
 
     it "doesn't plan itself upon #plan" do
-      expect(action).not_to receive(:plan_itself)
+      expect(action).not_to receive(:plan_myself)
       action.plan
     end
   end

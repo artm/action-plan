@@ -10,10 +10,10 @@ module Action
     end
 
     def plan
-      plan_itself if respond_to?(:run)
+      plan_myself if respond_to?(:run)
     end
 
-    def plan_itself
+    def plan_myself
       @plan.schedule_action(self.class, config)
     end
 
