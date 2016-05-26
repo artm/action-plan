@@ -26,5 +26,32 @@ describe Action::Base do
       action.plan plan_dsl
     end
   end
+
+  describe "run time state" do
+    let(:run_time_state) { ActiveSupport::OrderedHash.new }
+    let(:action) { Action::Base.new(run_time_state: run_time_state) }
+
+    it "supports todo=" do
+      expect{ action.send(:todo=, 100) }.to change{run_time_state[:todo]}
+        .from(nil).to(100)
+    end
+
+    it "supports done=" do
+      expect{ action.send(:done=, 1) }.to change{run_time_state[:done]}
+        .from(nil).to(1)
+    end
+
+    context "run time state not set" do
+      let(:run_time_state) { nil }
+
+      it "breaks on todo=" do
+        expect{ action.send(:todo=, 100) }.to raise_error Action::NoRuntimeState
+      end
+
+      it "breaks on done=" do
+        expect{ action.send(:done=, 1) }.to raise_error Action::NoRuntimeState
+      end
+    end
+  end
 end
 

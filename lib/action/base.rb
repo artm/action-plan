@@ -4,6 +4,10 @@ module Action
   class Base
     include ActiveSupport::Configurable
 
+    def initialize run_time_state: nil
+      @run_time_state = run_time_state
+    end
+
     def configure
       yield config if block_given?
       self
@@ -34,5 +38,22 @@ module Action
         @plan.plan_action(action_class, &block)
       end
     end
+
+    protected
+
+    def todo= total
+      run_time_state[:todo] = total
+    end
+
+    def done= count
+      run_time_state[:done] = count
+    end
+
+    def run_time_state
+      @run_time_state or raise NoRuntimeState
+    end
   end
+
+  class Error < RuntimeError ; end
+  class NoRuntimeState < Error ; end
 end
