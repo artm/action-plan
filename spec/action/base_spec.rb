@@ -6,18 +6,15 @@ require "actions/delegate_work"
 
 describe Action::Base do
   let(:plan) { double("plan") }
-  let(:action) { action_class.new(plan: plan) }
+  let(:action) { action_class.new }
+  let(:plan_dsl) { double("plan dsl") }
 
   context "implements neither #run or #plan" do
     let(:action_class) { Procrastinate }
 
-    it "doesn't respond to #run" do
-      expect(action).not_to respond_to(:run)
-    end
-
     it "doesn't plan itself upon #plan" do
-      expect(action).not_to receive(:plan_myself)
-      action.plan
+      expect(plan_dsl).not_to receive(:myself)
+      action.plan plan_dsl
     end
   end
 
@@ -25,17 +22,8 @@ describe Action::Base do
     let(:action_class) { JustDoIt }
 
     it "plans itself upon #plan" do
-      expect(plan).to receive(:schedule_action).with(JustDoIt, {})
-      action.plan
-    end
-  end
-
-  context "doesn't implement #run, but plans other actions" do
-    let(:action_class) { DelegateWork }
-
-    it "plans the other action" do
-      expect(plan).to receive(:plan_action).with(JustDoIt)
-      action.plan
+      expect(plan_dsl).to receive(:myself)
+      action.plan plan_dsl
     end
   end
 end

@@ -8,8 +8,8 @@ module Action
       @status = :initial
     end
 
-    def create_action plan:
-      @action_class.new(plan: plan) do |config|
+    def create_action
+      @action_class.new.configure do |config|
         config.replace(@config)
         config.freeze
       end

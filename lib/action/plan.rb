@@ -11,7 +11,7 @@ module Action
     def run
       raise NotRunnable, "#{status} plan can't be run" unless runnable?
       schedule.each do |state|
-        action = state.create_action(plan: self)
+        action = state.create_action
         run_action action, state
         break unless state.status == :done
       end
@@ -40,8 +40,7 @@ module Action
 
     # let action plan itself
     def plan_action action_class, &block
-      action_class.new(plan: self, &block).plan
-      self
+      action_class.new.configure(&block).expand_into(plan: self)
     end
 
     # schedule action execution at the current point in the plan
@@ -49,7 +48,6 @@ module Action
       new_state = Action::State.new(action_class: action_class, config: config)
       schedule << new_state
       new_state.status = :planned
-      self
     end
 
     class DSL
@@ -59,6 +57,7 @@ module Action
 
       def action *args, &block
         @plan.plan_action *args, &block
+        self
       end
     end
 
