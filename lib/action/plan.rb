@@ -11,6 +11,7 @@ module Action
     def run
       raise NotRunnable, "#{status} plan can't be run" unless runnable?
       schedule.each do |state|
+        next if state.status == :done
         action = state.create_action
         run_action action, state
         break unless state.status == :done

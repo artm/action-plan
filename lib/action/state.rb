@@ -4,7 +4,7 @@ module Action
   class State
     attr_accessor :status
 
-    def initialize action_class:, config:
+    def initialize action_class: nil, config: ActiveSupport::OrderedHash.new
       @action_class = action_class
       @config = config.dup
       @status = :initial

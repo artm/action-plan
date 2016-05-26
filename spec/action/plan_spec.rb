@@ -78,57 +78,70 @@ describe Action::Plan do
     end
   end
 
-  describe "action states" do
+  shared_context "exposed plan" do |count|
     let(:plan) {
       Action::Plan.new do |plan|
-        plan.action JustDoIt
-        plan.action JustDoIt
+        count.times do
+          plan.action JustDoIt
+        end
       end
     }
-    let(:state_a) { plan.action_states[0] }
-    let(:state_b) { plan.action_states[1] }
-    let(:action_a) { instance_double("JustDoIt") }
-    let(:action_b) { instance_double("JustDoIt") }
+    let(:states) { plan.action_states }
+    let(:actions) { states.map{ double("action", run: nil) } }
     before do
-      allow(state_a).to receive(:create_action) { action_a }
-      allow(state_b).to receive(:create_action) { action_b }
-      allow(action_a).to receive(:run)
-      allow(action_b).to receive(:run)
+      states.each_with_index do |state, i|
+        allow(state).to receive(:create_action) { actions[i] }
+      end
     end
+  end
+
+  shared_context "plan state" do |statuses|
+    include_context "exposed plan", statuses.count
+    before do
+      statuses.each_with_index do |status, index|
+        state = states[index]
+        state.status = status
+        allow(state).to receive(:create_action) { actions[index] }
+      end
+    end
+  end
+
+  describe "action states" do
+    include_context "exposed plan", 2
 
     it "initializes all actions as :planned" do
-      expect(state_a.status).to eq :planned
-      expect(state_b.status).to eq :planned
+      expect(states[0].status).to eq :planned
+      expect(states[1].status).to eq :planned
     end
 
     it "sets action states to :done after successful run" do
       plan.run
-      expect(state_a.status).to eq :done
-      expect(state_b.status).to eq :done
+      expect(states[0].status).to eq :done
+      expect(states[1].status).to eq :done
     end
 
     it "sets action state to :running just before calling its #run" do
-      expect(action_a).to receive(:run) do
-        expect(state_a.status).to eq :running
-        expect(state_b.status).to eq :planned
+      expect(actions[0]).to receive(:run) do
+        expect(states[0].status).to eq :running
+        expect(states[1].status).to eq :planned
       end
-      expect(action_b).to receive(:run) do
-        expect(state_a.status).to eq :done
-        expect(state_b.status).to eq :running
+      expect(actions[1]).to receive(:run) do
+        expect(states[0].status).to eq :done
+        expect(states[1].status).to eq :running
       end
       plan.run
     end
 
     it "sets action state to :failed if its #run raises exception" do
-      expect(action_a).to receive(:run) do
-        expect(state_a.status).to eq :running
-        expect(state_b.status).to eq :planned
+      expect(actions[0]).to receive(:run) do
+        expect(states[0].status).to eq :running
+        expect(states[1].status).to eq :planned
         raise RuntimeError, "couldn't do it"
       end
-      expect(action_b).not_to receive(:run)
+      expect(actions[1]).not_to receive(:run)
       plan.run
-      expect(state_a.status).to eq :failed
-      expect(state_b.status).to eq :planned
+      expect(states[0].status).to eq :failed
+      expect(states[1].status).to eq :planned
     end
   end
 
@@ -159,6 +172,25 @@ describe Action::Plan do
       expect(plan).to receive(:runnable?) { false }
       expect(plan).to receive(:status) { :in_a_bad_way }
       expect{ plan.run }.to raise_error Action::Plan::NotRunnable, /in_a_bad_way plan can't be run/
+    end
+  end
+
+  describe "re-running" do
+    include_context "plan state", [:done, :failed, :planned]
+
+    it "skips done action" do
+      expect(actions[0]).not_to receive(:run)
+      plan.run
+    end
+
+    it "runs failed action" do
+      expect(actions[1]).to receive(:run)
+      plan.run
+    end
+
+    it "runs planned action" do
+      expect(actions[2]).to receive(:run)
+      plan.run
     end
   end
 end
