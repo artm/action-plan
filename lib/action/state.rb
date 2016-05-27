@@ -24,12 +24,20 @@ module Action
     end
 
     def to_json *options
+      to_h.to_json(*options)
+    end
+
+    def to_h
       {
         action_class: @action_class.name,
         config: @config,
         status: @status,
         run_time: @run_time
-      }.to_json(*options)
+      }
+    end
+
+    def == other
+      self.class == other.class && self.to_h == other.to_h
     end
   end
 end

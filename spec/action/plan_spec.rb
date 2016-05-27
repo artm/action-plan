@@ -172,7 +172,7 @@ describe Action::Plan do
     describe "parsing json" do
       let(:loaded_plan) { JSON.parse(plan_json, create_additions: true) }
       it "deserializes the original plan" do
-        expect(loaded_plan).to eql plan
+        expect(loaded_plan).to be == plan
       end
     end
   end

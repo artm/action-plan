@@ -46,6 +46,10 @@ module Action
       }
     end
 
+    def == other
+      self.class == other.class && schedule == other.action_states
+    end
+
     class DSL
       def initialize plan
         @plan = plan
