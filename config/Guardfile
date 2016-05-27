@@ -1,6 +1,6 @@
 directories %w(lib spec config)
 
-guard :rspec, cmd: "bin/rspec", launchy: "tmp/rspec_results.html" do
+guard :rspec, cmd: "bin/rspec" do
   require "guard/rspec/dsl"
   dsl = Guard::RSpec::Dsl.new(self)
 
