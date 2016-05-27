@@ -2,7 +2,13 @@ require "actions/just_do_it"
 
 module PlanHelpers
   shared_context "plan, states" do |*classes|
-    let(:plan) { Action::Plan.new do |plan| classes.each do |c| plan.action c end end }
+    let(:plan) {
+      Action::Plan.new do |plan|
+        classes.each do |c|
+          plan.action c
+        end
+      end
+    }
     let(:states) { plan.action_states }
   end
 

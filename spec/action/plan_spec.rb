@@ -4,13 +4,21 @@ require "actions/just_do_it"
 require "plan_helpers"
 
 describe Action::Plan do
-  describe "setup" do
-    include_context "plan, states", Procrastinate
+  describe "constructor" do
+    let(:plan) {
+      Action::Plan.new do |plan|
+        plan.action Procrastinate
+      end
+    }
 
-    it "calls root action's #plan()" do
+    it "calls actions' #plan()" do
       expect_any_instance_of(Procrastinate).to receive(:plan)
       plan
     end
+  end
+
+  describe "#run" do
+    include_context "plan, states", Procrastinate
 
     it "can be run" do
       expect { plan.run }.not_to raise_error
@@ -26,19 +34,17 @@ describe Action::Plan do
   end
 
   context "action did plan itself" do
-    include_context "plan, states", JustDoIt
+    include_context "plan, states, actions", JustDoIt
     it "will be run" do
-      plan
-      expect_any_instance_of(JustDoIt).to receive(:run)
+      expect(actions[0]).to receive(:run)
       plan.run
     end
   end
 
   describe "action configs" do
-    let(:action_class) { JustDoIt }
     let(:plan) {
       Action::Plan.new do |plan|
-        plan.action action_class do |config|
+        plan.action JustDoIt do |config|
           config.setting = 1
         end
       end
@@ -46,12 +52,12 @@ describe Action::Plan do
 
     it "doesn't break the default action config" do
       plan
-      expect(action_class.config.setting).to be_nil
+      expect(JustDoIt.config.setting).to be_nil
     end
 
     it "recalls the config when executing action's #run" do
       plan
-      expect_any_instance_of(action_class).to receive(:run) do |action|
+      expect_any_instance_of(JustDoIt).to receive(:run) do |action|
         expect(action.config.setting).to eq 1
       end
       plan.run
@@ -59,7 +65,7 @@ describe Action::Plan do
 
     it "freezes run-time configs" do
       plan
-      expect_any_instance_of(action_class).to receive(:run) do |action|
+      expect_any_instance_of(JustDoIt).to receive(:run) do |action|
         expect{ action.config.setting = 2 }.to raise_error RuntimeError, /can't modify frozen/
       end
       plan.run
@@ -108,17 +114,21 @@ describe Action::Plan do
   describe "#runnable?" do
     subject(:plan) { Action::Plan.new }
     shared_examples "runnable" do |status|
-      before do
-        expect(plan).to receive(:status) { status }
+      describe "with status #{status}" do
+        before do
+          expect(plan).to receive(:status) { status }
+        end
+        it { is_expected.to be_runnable }
       end
-      it { is_expected.to be_runnable }
     end
 
     shared_examples "not runnable" do |status|
-      before do
-        expect(plan).to receive(:status) { status }
+      describe "with status #{status}" do
+        before do
+          expect(plan).to receive(:status) { status }
+        end
+        it { is_expected.to_not be_runnable }
       end
-      it { is_expected.to_not be_runnable }
     end
 
     it_behaves_like "runnable", :empty
