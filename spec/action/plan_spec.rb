@@ -4,30 +4,19 @@ require "actions/just_do_it"
 require "plan_helpers"
 
 describe Action::Plan do
-  it 'has a version number' do
-    expect(Action::Plan::VERSION).not_to be nil
-  end
+  describe "setup" do
+    include_context "exposed plan", 1, Procrastinate
 
-  let(:action_class) { Procrastinate }
-  let(:plan) {
-    Action::Plan.new do |plan|
-      plan.action action_class
+    it "calls root action's #plan()" do
+      expect_any_instance_of(Procrastinate).to receive(:plan)
+      plan
     end
-  }
 
-  it "can be instantiated" do
-    expect(plan).to be_kind_of Action::Plan
-  end
-
-  it "calls root action's #plan()" do
-    expect_any_instance_of(Procrastinate).to receive(:plan)
-    plan
-  end
-
-  it "can be run" do
-    expect {
-      plan.run
-    }.not_to raise_error
+    it "can be run" do
+      expect {
+        plan.run
+      }.not_to raise_error
+    end
   end
 
   context "action didn't plan itself" do
