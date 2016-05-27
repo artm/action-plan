@@ -31,6 +31,10 @@ module Action
       RunnableStatuses.include?(status)
     end
 
+    def state_json
+      ""
+    end
+
     class DSL
       def initialize plan
         @plan = plan

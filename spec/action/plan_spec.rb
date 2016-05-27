@@ -163,4 +163,10 @@ describe Action::Plan do
       plan.run
     end
   end
+
+  describe "state_json" do
+    include_context "plan with statuses", :done, :running, :planned
+    subject(:state_json) { plan.state_json }
+    it { is_expected.to be_kind_of String }
+  end
 end
