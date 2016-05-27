@@ -1,33 +1,27 @@
 require "actions/just_do_it"
 
 module PlanHelpers
-  shared_context "exposed plan" do |count, action_class=JustDoIt|
-    let(:plan) {
-      Action::Plan.new do |plan|
-        count.times do
-          plan.action action_class
-        end
-      end
-    }
+  shared_context "plan, states" do |*classes|
+    let(:plan) { Action::Plan.new do |plan| classes.each do |c| plan.action c end end }
     let(:states) { plan.action_states }
-    let(:actions) { states.map{ double("action", run: nil) } }
+  end
+
+  shared_context "plan, states, actions" do |*classes|
+    include_context "plan, states", *classes
+    let(:actions) { classes.map{ |c| double(c.name, run: nil) } }
     before do
-      states.each_with_index do |state, i|
-        allow(state).to receive(:create_action) { actions[i] }
+      states.zip(actions).each do |state, action|
+        allow(state).to receive(:create_action) { action }
       end
     end
   end
 
-  shared_context "plan state" do |statuses|
-    include_context "exposed plan", statuses.count
+  shared_context "plan with statuses" do |*statuses|
+    include_context "plan, states, actions", *statuses.map{JustDoIt}
     before do
-      statuses.each_with_index do |status, index|
-        state = states[index]
+      states.zip(statuses).each do |state, status|
         state.status = status
-        allow(state).to receive(:create_action) { actions[index] }
       end
     end
   end
-
-
 end

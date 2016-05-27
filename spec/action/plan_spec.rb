@@ -5,7 +5,7 @@ require "plan_helpers"
 
 describe Action::Plan do
   describe "setup" do
-    include_context "exposed plan", 1, Procrastinate
+    include_context "plan, states", Procrastinate
 
     it "calls root action's #plan()" do
       expect_any_instance_of(Procrastinate).to receive(:plan)
@@ -20,6 +20,7 @@ describe Action::Plan do
   end
 
   context "action didn't plan itself" do
+    include_context "plan, states", Procrastinate
     it "won't be run" do
       plan
       expect_any_instance_of(Procrastinate).not_to receive(:run)
@@ -28,7 +29,7 @@ describe Action::Plan do
   end
 
   context "action did plan itself" do
-    let(:action_class) { JustDoIt }
+    include_context "plan, states", JustDoIt
     it "will be run" do
       plan
       expect_any_instance_of(JustDoIt).to receive(:run)
@@ -69,7 +70,7 @@ describe Action::Plan do
   end
 
   describe "action states" do
-    include_context "exposed plan", 2
+    include_context "plan, states, actions", JustDoIt, JustDoIt, JustDoIt
 
     it "initializes all actions as :planned" do
       expect(states[0].status).to eq :planned
@@ -138,7 +139,7 @@ describe Action::Plan do
   end
 
   describe "re-running" do
-    include_context "plan state", [:done, :failed, :planned]
+    include_context "plan with statuses", :done, :failed, :planned
 
     it "skips done action" do
       expect(actions[0]).not_to receive(:run)
