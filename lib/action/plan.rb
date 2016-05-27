@@ -1,3 +1,4 @@
+require "json"
 require "action/plan/version"
 require "action/state"
 
@@ -31,8 +32,18 @@ module Action
       RunnableStatuses.include?(status)
     end
 
-    def state_json
-      ""
+    def to_json *options
+      {
+        JSON.create_id => self.class.name,
+        schedule: schedule
+      }.to_json(*options)
+    end
+
+    def self.json_create hash_plan
+      schedule = hash_plan["schedule"].map{|h| Action::State.new(h)}
+      Action::Plan.new.tap{ |plan|
+        plan.instance_variable_set(:@schedule, schedule)
+      }
     end
 
     class DSL

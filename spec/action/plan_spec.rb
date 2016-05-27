@@ -164,9 +164,16 @@ describe Action::Plan do
     end
   end
 
-  describe "state_json" do
+  describe "#to_json" do
     include_context "plan with statuses", :done, :running, :planned
-    subject(:state_json) { plan.state_json }
+    subject(:plan_json) { plan.to_json }
     it { is_expected.to be_kind_of String }
+
+    describe "parsing json" do
+      let(:loaded_plan) { JSON.parse(plan_json, create_additions: true) }
+      it "deserializes the original plan" do
+        expect(loaded_plan).to eql plan
+      end
+    end
   end
 end
