@@ -13,17 +13,14 @@ describe Action::Plan do
     end
 
     it "can be run" do
-      expect {
-        plan.run
-      }.not_to raise_error
+      expect { plan.run }.not_to raise_error
     end
   end
 
   context "action didn't plan itself" do
-    include_context "plan, states", Procrastinate
+    include_context "plan, states, actions", Procrastinate
     it "won't be run" do
-      plan
-      expect_any_instance_of(Procrastinate).not_to receive(:run)
+      expect(actions.first).not_to receive(:run)
       plan.run
     end
   end
