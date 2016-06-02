@@ -42,7 +42,7 @@ module Action
     def status= new_status
       old_status = @status
       @status = new_status
-      broadcast(:status_changed, self, new_status, old_status)
+      broadcast :status_changed, self, new_status, old_status
       @status
     end
   end

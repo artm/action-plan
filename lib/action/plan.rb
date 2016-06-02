@@ -18,10 +18,10 @@ module Action
         next if state.status == :done
         action = state.create_action
         state.on(:status_changed) do |state, new_status, old_status|
-          broadcast(:plan_state_changed, self, state, new_status, old_status)
+          broadcast :plan_state_changed, self, state, new_status, old_status
         end
         action.on(:progress) do |done, total|
-          broadcast(:action_progress, self, action, done, total)
+          broadcast :action_progress, self, action, done, total
         end
         run_action action, state, &block
         break unless state.status == :done
@@ -93,8 +93,9 @@ module Action
       state.status = :running
       action.run
       state.status = :done
-    rescue
+    rescue Exception => e
       state.status = :failed
+      broadcast :action_failure, self, action, e
     end
   end
 end

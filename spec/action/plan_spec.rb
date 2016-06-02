@@ -3,6 +3,7 @@ require "actions/procrastinate"
 require "actions/just_do_it"
 require "actions/delegate_work"
 require "actions/busy_work"
+require "actions/break_down"
 require "plan_helpers"
 
 describe Action::Plan do
@@ -31,7 +32,8 @@ describe Action::Plan do
         log = []
         plan.on(:plan_state_changed) do |plan, state, new_status, old_status|
           log << new_status
-        end.run
+        end
+        plan.run
         expect(log).to eq [:running, :done]
       end
     end
@@ -42,8 +44,22 @@ describe Action::Plan do
         log = []
         plan.on(:action_progress) do |plan, action, progress, total|
           log << [progress, total]
-        end.run
+        end
+        plan.run
         expect(log).to eq [[1, 3], [2, 3], [3, 3]]
+      end
+    end
+
+    context "with failing action" do
+      include_context "plan, states", BreakDown
+
+      it "broadcasts error details" do
+        log = []
+        plan.on(:action_failure) do |plan, action, exception|
+          log << exception
+        end
+        plan.run
+        expect(log.length).to eq 1
       end
     end
   end
