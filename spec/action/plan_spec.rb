@@ -24,14 +24,12 @@ describe Action::Plan do
       expect { plan.run }.not_to raise_error
     end
 
-    it "yields serialized plan each time the state changes" do
+    it "broadcasts state changes" do
       log = []
-      plan.run do |json|
-        log << json
-      end
-      expect(log).to_not be_empty
-      # running, done
-      expect(log.length).to eq 2
+      plan.on(:plan_state_changed) do |plan, state, new_status, old_status|
+        log << new_status
+      end.run
+      expect(log).to eq [:running, :done]
     end
   end
 

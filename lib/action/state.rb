@@ -4,6 +4,7 @@ require "active_support/core_ext/string/inflections"
 
 module Action
   class State
+    include Wisper::Publisher
     attr_accessor :status
 
     def initialize options = {}
@@ -37,6 +38,13 @@ module Action
 
     def == other
       self.class == other.class && self.to_h == other.to_h
+    end
+
+    def status= new_status
+      old_status = @status
+      @status = new_status
+      broadcast(:status_changed, self, new_status, old_status)
+      @status
     end
   end
 end

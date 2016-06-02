@@ -1,9 +1,12 @@
 require "json"
+require "wisper"
 require "action/plan/version"
 require "action/state"
 
 module Action
   class Plan
+    include Wisper::Publisher
+
     def initialize
       @schedule = []
       yield DSL.new(self) if block_given?
@@ -14,6 +17,9 @@ module Action
       schedule.each do |state|
         next if state.status == :done
         action = state.create_action
+        state.on(:status_changed) do |state, new_status, old_status|
+          broadcast(:plan_state_changed, self, state, new_status, old_status)
+        end
         run_action action, state, &block
         break unless state.status == :done
       end
@@ -82,13 +88,10 @@ module Action
 
     def run_action action, state
       state.status = :running
-      yield to_json if block_given?
       action.run
       state.status = :done
-      yield to_json if block_given?
     rescue
       state.status = :failed
-      yield to_json if block_given?
     end
   end
 end
