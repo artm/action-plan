@@ -9,12 +9,12 @@ module Action
       yield DSL.new(self) if block_given?
     end
 
-    def run
+    def run &block
       raise NotRunnable, "#{status} plan can't be run" unless runnable?
       schedule.each do |state|
         next if state.status == :done
         action = state.create_action
-        run_action action, state
+        run_action action, state, &block
         break unless state.status == :done
       end
     end
@@ -82,10 +82,13 @@ module Action
 
     def run_action action, state
       state.status = :running
+      yield to_json if block_given?
       action.run
       state.status = :done
+      yield to_json if block_given?
     rescue
       state.status = :failed
+      yield to_json if block_given?
     end
   end
 end
