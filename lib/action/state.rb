@@ -16,7 +16,6 @@ module Action
     end
 
     def create_action
-      puts @config
       @action_class.new(run_time_state: @run_time).configure do |config|
         config.replace(@config)
         config.freeze
