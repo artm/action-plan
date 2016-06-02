@@ -14,7 +14,7 @@ module PlanHelpers
 
   shared_context "plan, states, actions" do |*classes|
     include_context "plan, states", *classes
-    let(:actions) { classes.map{ |c| double(c.name, run: nil) } }
+    let(:actions) { classes.map{ |c| double(c.name, run: nil, on: nil) } }
     before do
       states.zip(actions).each do |state, action|
         allow(state).to receive(:create_action) { action }

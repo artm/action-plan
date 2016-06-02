@@ -1,6 +1,8 @@
 require "spec_helper"
 require "actions/procrastinate"
 require "actions/just_do_it"
+require "actions/delegate_work"
+require "actions/busy_work"
 require "plan_helpers"
 
 describe Action::Plan do
@@ -18,18 +20,31 @@ describe Action::Plan do
   end
 
   describe "#run" do
-    include_context "plan, states", JustDoIt
+    context "with a single action" do
+      include_context "plan, states", JustDoIt
 
-    it "can be run" do
-      expect { plan.run }.not_to raise_error
+      it "can be run" do
+        expect { plan.run }.not_to raise_error
+      end
+
+      it "broadcasts state changes" do
+        log = []
+        plan.on(:plan_state_changed) do |plan, state, new_status, old_status|
+          log << new_status
+        end.run
+        expect(log).to eq [:running, :done]
+      end
     end
 
-    it "broadcasts state changes" do
-      log = []
-      plan.on(:plan_state_changed) do |plan, state, new_status, old_status|
-        log << new_status
-      end.run
-      expect(log).to eq [:running, :done]
+    context "with action broadcasting progress" do
+      include_context "plan, states", BusyWork
+      it "rebroadcasts action progress" do
+        log = []
+        plan.on(:action_progress) do |plan, action, progress, total|
+          log << [progress, total]
+        end.run
+        expect(log).to eq [[1, 3], [2, 3], [3, 3]]
+      end
     end
   end
 

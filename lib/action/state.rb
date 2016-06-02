@@ -1,3 +1,4 @@
+require "wisper"
 require "active_support/ordered_hash"
 require "active_support/core_ext/hash"
 require "active_support/core_ext/string/inflections"
@@ -13,11 +14,10 @@ module Action
       @action_class = @action_class.constantize if String === @action_class
       @config = options.fetch(:config, ActiveSupport::OrderedHash.new)
       @status = options.fetch(:status, :initial).to_sym
-      @run_time = options.fetch(:run_time, ActiveSupport::OrderedHash.new)
     end
 
     def create_action
-      @action_class.new(run_time_state: @run_time).configure do |config|
+      @action_class.new.configure do |config|
         config.replace(@config)
         config.freeze
       end
@@ -32,7 +32,6 @@ module Action
         action_class: @action_class.name,
         config: @config,
         status: @status,
-        run_time: @run_time
       }
     end
 
