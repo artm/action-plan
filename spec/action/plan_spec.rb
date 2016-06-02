@@ -30,6 +30,8 @@ describe Action::Plan do
         log << json
       end
       expect(log).to_not be_empty
+      # running, done
+      expect(log.length).to eq 2
     end
   end
 
