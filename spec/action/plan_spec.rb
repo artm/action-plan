@@ -18,10 +18,18 @@ describe Action::Plan do
   end
 
   describe "#run" do
-    include_context "plan, states", Procrastinate
+    include_context "plan, states", JustDoIt
 
     it "can be run" do
       expect { plan.run }.not_to raise_error
+    end
+
+    it "yields serialized plan each time the state changes" do
+      log = []
+      plan.run do |json|
+        log << json
+      end
+      expect(log).to_not be_empty
     end
   end
 
